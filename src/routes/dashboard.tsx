@@ -1,8 +1,7 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { BookOpen, Send, Sparkles, Loader2, MessageCircleQuestion } from "lucide-react";
-import { useAuth } from "@/hooks/useAuth";
 import { Navbar } from "@/components/Navbar";
 import { StoryViewer } from "@/components/StoryViewer";
 import { Button } from "@/components/ui/button";
@@ -14,6 +13,7 @@ import {
   parseSlides,
   type QuestionRow,
 } from "@/services/stories";
+import { DEFAULT_USER_ID } from "@/services/user";
 
 type Search = { topic?: string };
 
@@ -25,8 +25,6 @@ export const Route = createFileRoute("/dashboard")({
 });
 
 function DashboardPage() {
-  const { user, loading } = useAuth();
-  const navigate = useNavigate();
   const search = Route.useSearch();
 
   const [tab, setTab] = useState<"story" | "doubt">("story");
@@ -40,22 +38,18 @@ function DashboardPage() {
   const [askBusy, setAskBusy] = useState(false);
 
   useEffect(() => {
-    if (!loading && !user) navigate({ to: "/login" });
-  }, [loading, user, navigate]);
-
-  useEffect(() => {
-    if (search.topic && user && !slides.length && !busy) {
+    if (search.topic && !slides.length && !busy) {
       void handleGenerate(search.topic);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
+  }, []);
 
   const handleGenerate = async (t?: string) => {
     const val = (t ?? topic).trim();
-    if (!val || !user) return;
+    if (!val) return;
     setBusy(true);
     try {
-      const story = await createStory(user.id, val);
+      const story = await createStory(DEFAULT_USER_ID, val);
       setSlides(parseSlides(story.content));
       setCurrentTopic(story.topic);
     } finally {
@@ -65,23 +59,15 @@ function DashboardPage() {
 
   const handleAsk = async () => {
     const q = question.trim();
-    if (!q || !user) return;
+    if (!q) return;
     setAskBusy(true);
     try {
-      const row = await askQuestion(user.id, q);
+      const row = await askQuestion(DEFAULT_USER_ID, q);
       setAnswer(row);
     } finally {
       setAskBusy(false);
     }
   };
-
-  if (loading || !user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center gradient-subtle">
-        <Loader2 className="h-6 w-6 animate-spin text-primary" />
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen gradient-subtle">
@@ -89,7 +75,7 @@ function DashboardPage() {
       <main className="mx-auto max-w-6xl px-6 py-8">
         <div className="mb-6">
           <h1 className="text-3xl font-bold tracking-tight">
-            Hey {user.user_metadata?.name || "learner"} 👋
+            Hey learner 👋
           </h1>
           <p className="text-muted-foreground">What do you want to understand today?</p>
         </div>
