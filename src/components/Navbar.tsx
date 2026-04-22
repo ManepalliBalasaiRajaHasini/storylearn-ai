@@ -1,13 +1,10 @@
-import { Link, useNavigate } from "@tanstack/react-router";
-import { Moon, Sun, Sparkles, LogOut } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { Moon, Sun, Sparkles } from "lucide-react";
 import { useTheme } from "@/hooks/useTheme";
-import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 
 export function Navbar() {
   const { dark, toggle } = useTheme();
-  const { user, signOut } = useAuth();
-  const navigate = useNavigate();
 
   return (
     <header className="sticky top-0 z-50 glass">
@@ -24,34 +21,11 @@ export function Navbar() {
           <Button variant="ghost" size="icon" onClick={toggle} aria-label="Toggle theme">
             {dark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           </Button>
-          {user ? (
-            <>
-              <Link to="/dashboard">
-                <Button variant="ghost" size="sm">Dashboard</Button>
-              </Link>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={async () => {
-                  await signOut();
-                  navigate({ to: "/" });
-                }}
-              >
-                <LogOut className="mr-1 h-4 w-4" /> Logout
-              </Button>
-            </>
-          ) : (
-            <>
-              <Link to="/login">
-                <Button variant="ghost" size="sm">Login</Button>
-              </Link>
-              <Link to="/login">
-                <Button size="sm" className="gradient-hero text-white border-0 shadow-glow hover:opacity-90">
-                  Get Started
-                </Button>
-              </Link>
-            </>
-          )}
+          <Link to="/dashboard">
+            <Button size="sm" className="gradient-hero text-white border-0 shadow-glow hover:opacity-90">
+              Open Dashboard
+            </Button>
+          </Link>
         </div>
       </div>
     </header>

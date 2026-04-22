@@ -78,7 +78,7 @@ function Landing() {
           </motion.div>
 
           <div className="mt-4 text-xs text-muted-foreground">
-            No signup needed to try. Save your library by creating an account.
+            No signup needed — jump straight in.
           </div>
         </div>
       </section>
