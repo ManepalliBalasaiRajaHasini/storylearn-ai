@@ -60,23 +60,45 @@ export function StoryViewer({ slides, topic }: { slides: string[]; topic: string
       </div>
 
       <div className="relative flex-1 overflow-hidden rounded-3xl gradient-hero p-[1px] shadow-glow">
-        <div className="relative h-full w-full rounded-3xl bg-card p-8 md:p-12 overflow-hidden">
-          <div className="absolute -top-24 -right-24 h-64 w-64 rounded-full gradient-hero opacity-20 blur-3xl" />
-          <div className="absolute -bottom-24 -left-24 h-64 w-64 rounded-full bg-accent opacity-20 blur-3xl" />
-
+        <div className="relative h-full w-full rounded-3xl overflow-hidden bg-card">
           <AnimatePresence mode="wait">
             <motion.div
               key={index}
-              initial={{ opacity: 0, y: 20, scale: 0.98 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -20, scale: 0.98 }}
-              transition={{ duration: 0.45, ease: "easeOut" }}
-              className="relative flex h-full flex-col justify-center"
+              initial={{ opacity: 0, scale: 1.04 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.98 }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
+              className="absolute inset-0"
             >
-              <div className="mb-4 inline-flex w-fit items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
+              {/* Background image */}
+              <img
+                src={slideImage(topic, index)}
+                alt=""
+                aria-hidden
+                className="absolute inset-0 h-full w-full object-cover scale-105"
+                loading="eager"
+              />
+              {/* Blur + dark gradient overlays for readability */}
+              <div className="absolute inset-0 backdrop-blur-[2px] bg-black/35" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-black/20" />
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-transparent to-accent/30 mix-blend-overlay" />
+            </motion.div>
+          </AnimatePresence>
+
+          {/* Foreground text */}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={`text-${index}`}
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -16 }}
+              transition={{ duration: 0.45, ease: "easeOut", delay: 0.1 }}
+              className="relative z-10 flex h-full flex-col justify-end p-8 md:p-12"
+            >
+              <div className="mb-4 inline-flex w-fit items-center gap-2 rounded-full bg-white/15 backdrop-blur-md px-3 py-1 text-xs font-medium text-white border border-white/20">
                 Slide {index + 1} of {slides.length}
               </div>
-              <p className="text-xl md:text-2xl leading-relaxed font-medium text-foreground">
+              <p className="text-xl md:text-2xl leading-relaxed font-medium text-white drop-shadow-[0_2px_12px_rgba(0,0,0,0.5)] max-w-3xl">
                 {slides[index]}
               </p>
             </motion.div>
@@ -117,4 +139,15 @@ export function StoryViewer({ slides, topic }: { slides: string[]; topic: string
       </div>
     </div>
   );
+}
+
+// Deterministic, topic-aware background per slide using Unsplash Source.
+function slideImage(topic: string, index: number) {
+  const seed = encodeURIComponent(
+    `${topic.toLowerCase().replace(/\s+/g, "-")}-${index}`,
+  );
+  const query = encodeURIComponent(
+    `${topic},abstract,technology,gradient`.replace(/\s+/g, ","),
+  );
+  return `https://source.unsplash.com/1600x900/?${query}&sig=${seed}`;
 }
